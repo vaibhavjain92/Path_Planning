@@ -1,19 +1,39 @@
-grid = [[0, 1, 0, 1, 0, 0, 0],
-        [0, 1, 0, 1, 0, 0, 0],
-        [0, 1, 0, 1, 0, 0, 0],
-        [0, 1, 0, 1, 0, 0, 0],
-        [0, 0, 0, 1, 0, 0, 0]]
-        
+# -----------
+# User Instructions:
+#
+# Modify the the search function so that it returns
+# a shortest path as follows:
+# 
+# [['>', 'v', ' ', ' ', ' ', ' '],
+#  [' ', '>', '>', '>', '>', 'v'],
+#  [' ', ' ', ' ', ' ', ' ', 'v'],
+#  [' ', ' ', ' ', ' ', ' ', 'v'],
+#  [' ', ' ', ' ', ' ', ' ', '*']]
+#
+# Where '>', '<', '^', and 'v' refer to right, left, 
+# up, and down motions. Note that the 'v' should be 
+# lowercase. '*' should mark the goal cell.
+#
+# You may assume that all test cases for this function
+# will have a path from init to goal.
+# ----------
+
+grid = [[0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 1, 0],
+        [0, 0, 1, 0, 1, 0],
+        [0, 0, 1, 0, 1, 0]]
 init = [0, 0]
 goal = [len(grid)-1, len(grid[0])-1]
 cost = 1
 
-delta = [[-1, 0], # go up
-         [ 0,-1], # go left
-         [ 1, 0], # go down
-         [ 0, 1]] # go right
+delta = [[-1, 0 ], # go up
+         [ 0, -1], # go left
+         [ 1, 0 ], # go down
+         [ 0, 1 ]] # go right
 
 delta_name = ['^', '<', 'v', '>']
+
 def check_boundary(grid, neighbor):
     #print "before check_boundary neighbor:"
     #print neighbor
@@ -45,8 +65,9 @@ def move(grid, delta, check, open_list, cost):
         
         neighbor = check_boundary(grid, neighbor)
         #print "neighbor in move:", neighbor
-        valid = valid_move(grid, neighbor)
         
+        valid = valid_move(grid, neighbor)
+        #print valid
         if (neighbor not in check) and (valid == 1):
             g_value = final_cost
             x_coord = neighbor[0]
@@ -61,6 +82,7 @@ def search(grid,init,goal,cost):
     # ----------------------------------------
     # to keep track of visited points in grid
     check = []
+    path = [[' ' for row in range(len(grid[0]))] for col in range(len(grid))]
     check.append(init) #appending first point to the check
     # open a triplet list to track the g value according to the current position
     open_list = [0]*3
@@ -76,7 +98,7 @@ def search(grid,init,goal,cost):
         
         open_list1 = move(grid, delta, check, feed_list, cost)
         if not open_list1:
-            return 0;
+            return "fail"
         new_g_value = open_list1[0][0]
         nei_id = 0
         for i in range(len(open_list1)):
@@ -89,21 +111,37 @@ def search(grid,init,goal,cost):
                 nei_id = i
                 nei_x = open_list1[i][1]
                 nei_y = open_list1[i][2]
+                
         #print "open_list: ", open_list1
         #print "check: ", check
         #print nei_id
+        
+        old_x = feed_list[1]
+        old_y = feed_list[2]
+        
+        #print "old_x, old_y [", old_x, old_y, "]"
         feed_list[0] = new_g_value
         feed_list[1] = nei_x
         feed_list[2] = nei_y
+        
+        new_x = feed_list[1]
+        new_y = feed_list[2]
+        
+        diff_x = new_x - old_x
+        diff_y = new_y - old_y
+        
+        mov = [diff_x, diff_y]
+        ind = delta.index(mov)
+        #print mov, ind
+        path[old_x][old_y] = delta_name[ind]
+        #print "diff_x diff_y [", diff_x, diff_y, "]"
         #print "coord 0:", nei_x, ": goal 0: ", goal[0]
         #print "coord 1:", nei_y, ": goal 1: ", goal[1]
         #print "feed_list: ", feed_list
         #print " "
        
-    path = feed_list       
+    path[feed_list[1]][feed_list[2]] = '*'      
+    print path
     return path
-result  = search(grid, init, goal, cost)
-if result == 0:
-    print "fail"
-else:
-    print result
+
+search(grid,init,goal,cost)
